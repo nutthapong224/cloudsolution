@@ -16,14 +16,8 @@ export default defineConfig({
     host: '0.0.0.0',
     port: parseInt(process.env.PORT_HRMANAGEMENT), // ต้องเป็น number
     open: false,
-    allowedHosts: [process.env.HOST_HRMANAGEMENT],
-    proxy: {
-      '/api': {
-        target: `${process.env.VITE_API_URL}`,
-        changeOrigin: true,
-        secure: false,
-      }
-    },
+    allowedHosts: [process.env.HOST_HRMANAGEMENT]
+ 
   },
   preview: {
     host: '0.0.0.0',
