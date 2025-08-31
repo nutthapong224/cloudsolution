@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  testcloud:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    networks:
+      - fastapi_network
+
+  backend:
+    build: ./backend
+    restart: always
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    networks:
+      - fastapi_network
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      - testcloud
+      - backend
+    networks:
+      - fastapi_network
+
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - fastapi_network
+
+volumes:
+  mongo_data:
+
+networks:
+  fastapi_network:
+    driver: bridge
